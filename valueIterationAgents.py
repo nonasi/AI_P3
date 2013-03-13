@@ -69,18 +69,18 @@ class ValueIterationAgent(ValueEstimationAgent):
     #then returns the action that attempts to goto the state with the highest utility
     
     if self.mdp.isTerminal(state):
-        return none
+        return None
 
     
     legalActions=self.mdp.getPossibleActions(state)
     
     maxValue=0
-    bestaction = none
+    bestAction = None
     for action in legalActions:
-        statesReachable=getTransitionStatesAndProbs(state,action)
-        for state in statesReachable:
-            if state[1]==1-self.mdp.noise:
-                value=getValue(state[0])
+        statesReachable=self.mdp.getTransitionStatesAndProbs(state,action)
+        for newstate in statesReachable:
+            if newstate[1]==1-self.mdp.noise:
+                value=self.getValue(newstate[0])
                 if value>maxValue:
                     maxValue=value
                     bestAction=action
