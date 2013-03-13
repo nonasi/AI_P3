@@ -42,8 +42,6 @@ class ValueIterationAgent(ValueEstimationAgent):
     """
       Return the value of the state (computed in __init__).
     """
-    print self.values
-    
     return self.values[state]
 
 
@@ -67,21 +65,28 @@ class ValueIterationAgent(ValueEstimationAgent):
       terminal state, you should return None.
     """
     "*** YOUR CODE HERE ***"
-    """ My notes: every state gets passed in. 
-        Starts with terminal state; then 00, 01 etc.
-    """
-    legalActions = self.mdp.getPossibleActions(state)
-    if len(legalActions) >0 :
-        action = legalActions[0]
-        transitionStatesAndProbs = self.mdp.getTransitionStatesAndProbs(state, action)
-        nextState = transitionStatesAndProbs[0][0]
-        print "mdp states     " , self.mdp.getStates()
-        print "current state: ", state
-        print "next state:    ", nextState
-        print "mdp reward:    " ,self.mdp.getReward(state, action, nextState)
-        
-        # check out all transitions and the probs 
-    return None
+    #this method looks at all the neighboring states, 
+    #then returns the action that attempts to goto the state with the highest utility
+    
+    if self.mdp.isTerminal(state):
+        return none
+
+    
+    legalActions=self.mdp.getPossibleActions(state)
+    
+    maxValue=0
+    bestaction = none
+    for action in legalActions:
+        statesReachable=getTransitionStatesAndProbs(state,action)
+        for state in statesReachable:
+            if state[1]==1-self.mdp.noise:
+                value=getValue(state[0])
+                if value>maxValue:
+                    maxValue=value
+                    bestAction=action
+    
+    return bestAction
+
     #util.raiseNotDefined()
 
 
