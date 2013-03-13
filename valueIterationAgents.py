@@ -37,7 +37,47 @@ class ValueIterationAgent(ValueEstimationAgent):
     self.values = util.Counter() # A Counter is a dict with default 0
      
     "*** YOUR CODE HERE ***"
+    allStates = mdp.getStates()
+    print "this is one of the states: ", allStates[1]
+ 
+    rs = mdp.livingReward #living reward
+    iteration = 0
+
+    while iteration < iterations:
+        for s in allStates:
+            #self.values[s] = rs + discount * self.utilOfBestAction(mdp, s )
+            self.values[s] = rs + discount * getReward(state,action,nextState)#self.utilOfBestAction(mdp, s )
+        iteration +=1
     
+  """Returns the value of the best action to take given that we are
+   at state s. 
+   s =  current state
+  """ 
+  def utilOfBestAction (self, mdp, s):
+    possibleActions =  mdp.getPossibleActions(s) 
+    import sys
+    maxUtility = -sys.maxint-1 # equivalent to "-infinity"
+    
+    for action in possibleActions :
+        transitionStatesAndProbs = mdp.getTransitionStatesAndProbs(s, action)
+        utilityOfAction = self.getPUsumForGivenAction (mdp, transitionStatesAndProbs, s, action)
+        
+        if utilityOfAction >= maxUtility:
+           maxUtility = utilityOfAction     
+    return maxUtility
+  
+  """ transitionStatesAndProbs a list of (nextState, prob) pairs for a given state
+  returns the sum of the probabilities and utilities of each action
+  """
+  def getPUsumForGivenAction (self, mdp, transitionStatesAndProbs,s, action):
+    utilityOfAction = 0 
+    for tsAndP in transitionStatesAndProbs:
+        nextState = tsAndP[0]
+        transitionProbability = tsAndP[1]
+        utilityOfAction += (transitionProbability * self.getValue(nextState))
+                
+    return utilityOfAction
+  
   def getValue(self, state):
     """
       Return the value of the state (computed in __init__).
