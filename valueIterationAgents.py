@@ -37,78 +37,32 @@ class ValueIterationAgent(ValueEstimationAgent):
     self.values = util.Counter() # A Counter is a dict with default 0
      
     "*** YOUR CODE HERE ***"
-    
-    
-    #my code
-    allStates = mdp.getStates()
-    vPrimes = util.Counter() #  A Counter is a dict with default 0
-    for s in allStates:
-        self.values[s]=0
- 
-    i = 0
-    while i < iterations:
-        for s in allStates:
-            if self.mdp.isTerminal(s):
-                #self.values[s]=-self.mdp.getReward(s,None,None)
-                vPrimes[s] = mdp.getReward(s, None, s)
-                
-                """
-            elif s==self.mdp.getStartState():
-                #self.values[s]=self.mdp.getReward(s,None,None)
-                vPrimes[s] = mdp.getReward(s, None, s)
-                """
-            
-            else:
-                allActions=self.mdp.getPossibleActions(s)
-                
-                bestUtility=-999999
-                for action in allActions:
-                    statesReachable=self.mdp.getTransitionStatesAndProbs(s,action) #list of (nextState,prob) tuples
-                    expectedUtility=0
-                    for nsAndP in statesReachable:
-                        expectedUtility=expectedUtility+nsAndP[1]*self.getValue(nsAndP[0])
-                        
-                    if expectedUtility>=bestUtility:
-                        bestUtility=expectedUtility
-                #self.values[s]=self.mdp.getReward(s,None,None)+discount*bestUtility
-                vPrimes[s] = self.mdp.getReward(s,None,None)+discount*bestUtility
-                
-        for s in allStates:
-            self.values[s] = vPrimes[s]
-        i +=1
-    
-    
-    """
-    #nona's code
     allStates = mdp.getStates() 
     vPrimes = util.Counter() #  A Counter is a dict with default 0
-    print "this is one of the states: ", allStates[1]
- 
-    rs = mdp.livingReward #living reward
-    iteration = 0
     
+    iteration = 0
     while iteration < iterations:
         
-        #for s in allStates:
-        #    self.values[s] = vPrimes[s]
-        
-        for s in allStates:
-           print "this is current state: ", s 
-           if mdp.isTerminal(s):
-               vPrimes[s] = mdp.getReward(s, None, s);
-           else: 
-               sreward = mdp.getReward(s, None, s)
-               vPrimes[s] = sreward + discount * self.utilOfBestAction(mdp, s )
+        for s in allStates: 
+            if mdp.isTerminal(s):
+                vPrimes[s] = mdp.getReward(s, None, s);
+            else: 
+                sreward = mdp.getReward(s, None, s)
+                vPrimes[s] = sreward + discount * self.utilOfBestAction(mdp, s )
                
         for s in allStates:
             self.values[s] = vPrimes[s]
             
         iteration +=1
-    """
-
+    
+  """Returns the value of the best action to take given that we are
+   at state s. 
+   s =  current state
+  """ 
   def utilOfBestAction (self, mdp, s):
     possibleActions =  mdp.getPossibleActions(s) 
     import sys
+
     maxUtility = -sys.maxint-1 # equivalent to "-infinity"
     
     
@@ -117,9 +71,8 @@ class ValueIterationAgent(ValueEstimationAgent):
         transitionStatesAndProbs = mdp.getTransitionStatesAndProbs(s, action)
         
         utilityOfAction = self.getPUsumForGivenAction (mdp, transitionStatesAndProbs, s, action)
-        print "utiliti of action: ", utilityOfAction
         if utilityOfAction >= maxUtility:
-           maxUtility = utilityOfAction 
+            maxUtility = utilityOfAction 
   
     return maxUtility
   
@@ -131,9 +84,6 @@ class ValueIterationAgent(ValueEstimationAgent):
     for tsAndP in transitionStatesAndProbs:
         nextState = tsAndP[0]
         transitionProbability = tsAndP[1]
-        print "this is next state: ", nextState 
-        print "next state value:   ", self.values[nextState]
-        print "transition prob: ", transitionProbability
         utilityOfAction += (transitionProbability * self.values[nextState]) # 
                 
     return utilityOfAction
@@ -154,7 +104,13 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    qvalue = 0
+    for (next_state, probability) in self.mdp.getTransitionStatesAndProbs(state, action):
+        qvalue += probability * (self.mdp.getReward(state, action, next_state) + 
+                                 self.discount * self.getValue(next_state))
+    
+    return qvalue
+    #util.raiseNotDefined()
 
   def getPolicy(self, state):
     """
@@ -167,32 +123,27 @@ class ValueIterationAgent(ValueEstimationAgent):
     "*** YOUR CODE HERE ***"
     #this method looks at all the neighboring states, 
     #then returns the action that attempts to goto the state with the highest utility
-    
-    if self.mdp.isTerminal(state):
-        return None
-
-    
+    print "getPolicy ", state    
     legalActions=self.mdp.getPossibleActions(state)
     
-    maxValue=-999999999999
+    if len(legalActions)<1:
+        print "-getPolicy No legal actions"
+        return None
+
+    import sys
+    maxValue= -sys.maxint-1 #-infinity
     bestAction = None
+    
     for action in legalActions:
         statesReachable=self.mdp.getTransitionStatesAndProbs(state,action)
         
         expectedUtility=0
         for newstate in statesReachable:
             expectedUtility=expectedUtility+newstate[1]*self.getValue(newstate[0])
-            """
-            if newstate[1]>=1-self.mdp.noise:
-                value=self.getValue(newstate[0])
-                if value>maxValue:
-                    maxValue=value
-                    bestAction=action
-            """
-        if expectedUtility>maxValue:
+
+        if expectedUtility >= maxValue:
             maxValue=expectedUtility
             bestAction=action
-    
     return bestAction
 
     #util.raiseNotDefined()
