@@ -25,31 +25,31 @@ def question3a():
   return answerDiscount, answerNoise, answerLivingReward
   # If not possible, return 'NOT POSSIBLE'
 
-def question3b():
+def question3b(): #make living reward sufficiently negative, then agent "prefers" closts exit.  COME BACK TO THIS
+  answerDiscount = 0.9
+  answerNoise = 0.2
+  answerLivingReward = -3.0
+  return answerDiscount, answerNoise, answerLivingReward
+  # If not possible, return 'NOT POSSIBLE'
+
+def question3c(): #default values
   answerDiscount = 0.9
   answerNoise = 0.2
   answerLivingReward = 0.0
   return answerDiscount, answerNoise, answerLivingReward
   # If not possible, return 'NOT POSSIBLE'
 
-def question3c():
+def question3d(): #raise the noise by a bit.  COME BACK TO THIS
   answerDiscount = 0.9
-  answerNoise = 0.2
+  answerNoise = 0.4
   answerLivingReward = 0.0
   return answerDiscount, answerNoise, answerLivingReward
   # If not possible, return 'NOT POSSIBLE'
 
-def question3d():
+def question3e(): #make the living reward 2 or greater, and agent will avoid exits
   answerDiscount = 0.9
   answerNoise = 0.2
-  answerLivingReward = 0.0
-  return answerDiscount, answerNoise, answerLivingReward
-  # If not possible, return 'NOT POSSIBLE'
-
-def question3e():
-  answerDiscount = 0.9
-  answerNoise = 0.2
-  answerLivingReward = 0.0
+  answerLivingReward = 2.0
   return answerDiscount, answerNoise, answerLivingReward
   # If not possible, return 'NOT POSSIBLE'
 
