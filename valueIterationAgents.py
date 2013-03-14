@@ -37,6 +37,44 @@ class ValueIterationAgent(ValueEstimationAgent):
     self.values = util.Counter() # A Counter is a dict with default 0
      
     "*** YOUR CODE HERE ***"
+    
+    allStates = mdp.getStates()
+    vPrimes = util.Counter() #  A Counter is a dict with default 0
+    for s in allStates:
+        self.values[s]=0
+        
+    i = 0
+    while i < iterations:
+        for s in allStates:
+            if self.mdp.isTerminal(s):
+                vPrimes[s] = mdp.getReward(s, None, s)
+                """
+            elif s==self.mdp.getStartState():
+                 #self.values[s]=self.mdp.getReward(s,None,None)
+                 vPrimes[s] = mdp.getReward(s, None, s)
+                 """
+            else:
+                allActions=self.mdp.getPossibleActions(s)
+       
+                bestUtility=-999999
+                for action in allActions:
+                    statesReachable=self.mdp.getTransitionStatesAndProbs(s,action) #list of (nextState,prob) tuples
+                    expectedUtility=0
+                    for nsAndP in statesReachable:
+                        expectedUtility=expectedUtility+nsAndP[1]*self.getValue(nsAndP[0])
+         
+                    if expectedUtility>=bestUtility:
+                        bestUtility=expectedUtility
+                #self.values[s]=self.mdp.getReward(s,None,None)+discount*bestUtility
+                vPrimes[s] = self.mdp.getReward(s,None,None)+discount*bestUtility
+   
+        for s in allStates:
+            self.values[s] = vPrimes[s]
+        i +=1
+     
+     
+    """
+    #nona's code
     allStates = mdp.getStates() 
     vPrimes = util.Counter() #  A Counter is a dict with default 0
     
@@ -54,6 +92,8 @@ class ValueIterationAgent(ValueEstimationAgent):
             self.values[s] = vPrimes[s]
             
         iteration +=1
+        
+    """
     
   """Returns the value of the best action to take given that we are
    at state s. 
@@ -104,6 +144,7 @@ class ValueIterationAgent(ValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
+    
     qvalue = 0
     for (next_state, probability) in self.mdp.getTransitionStatesAndProbs(state, action):
         qvalue += probability * (self.mdp.getReward(state, action, next_state) + 
