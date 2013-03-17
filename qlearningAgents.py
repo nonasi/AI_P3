@@ -25,12 +25,12 @@ class QLearningAgent(ReinforcementAgent):
       
     Instance variables you have access to
       - self.epsilon (exploration prob)
-      - self.alpha (learning rate)
-      - self.gamma (discount rate)
+      - self.alpha   (learning rate)
+      - self.gamma   (discount rate)
     
     Functions you should use
       - self.getLegalActions(state) 
-        which returns legal actions
+        returns legal actions
         for a state
   """
   def __init__(self, **args):
@@ -38,6 +38,14 @@ class QLearningAgent(ReinforcementAgent):
     ReinforcementAgent.__init__(self, **args)
 
     "*** YOUR CODE HERE ***"
+    self.qValues = util.Counter() #q values are initialized here.
+    #self.seenqv = util.Counter() #seenqv[sa] = 1 iff qValues[sa] seen, 0 otherwise
+    
+    self.freq=util.Counter()
+    
+    self.r=0
+        
+    
   
   def getQValue(self, state, action):
     """
@@ -46,8 +54,23 @@ class QLearningAgent(ReinforcementAgent):
       a state or (state,action) tuple 
     """
     "*** YOUR CODE HERE ***"
-    print ("getQValue gets called")
-    util.raiseNotDefined()
+    sa = (state, action)
+    #print "Qvalue: state ", state,         "action      ", action
+    #print "last state:   ", self.lastState, "last action ", self.lastAction
+    #print "self.qValues before " , self.qValues[sa], " and self.seenqv ", self.seenqv[sa]
+    
+    """
+    if self.seenqv[sa] == 0: #we have never seen sa before 
+        self.seenqv[sa] = 1 #mark that we just saw it.
+        self.qValues[sa] = 0; 
+        #print "self.qValues 1st time" , self.qValues[sa]
+        return self.qValues[sa]
+    
+    elif self.seenqv[sa] != 0: 
+        #print "self.qValues more than 2 times" , self.qValues[sa]
+        return self.qValues[sa]
+    """
+    return self.qValues[sa]
   
     
   def getValue(self, state):
@@ -56,10 +79,26 @@ class QLearningAgent(ReinforcementAgent):
       where the max is over legal actions.  Note that if
       there are no legal actions, which is the case at the
       terminal state, you should return a value of 0.0.
+      My Notes: we should return the VALUE of the action which 
+      has the greatest Q-value
     """
     "*** YOUR CODE HERE ***"
-    print ("getValue gets called")
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
+    print "getValue start "
+    legalActions = self.getLegalActions(state)
+    if len(legalActions)<1:
+        return 0.0
+    
+    else: 
+        maxAction = -sys.maxint -1 #"-infinity"
+        #get the greatest qValue among the possible state-action pairs
+        for curAction in legalActions:
+            sa = (state, curAction)
+            if maxAction <= self.getQValue(state, curAction):
+                maxAction = self.getQValue(state, curAction)
+        
+        print "getValue end - MaxAction = ", maxAction    
+        return maxAction
     
   def getPolicy(self, state):
     """
@@ -68,10 +107,16 @@ class QLearningAgent(ReinforcementAgent):
       you should return None.
     """
     "*** YOUR CODE HERE ***"
-
-    legalActions= self.getLegalActions(state)
-    util.raiseNotDefined()
-
+    print"getPolicy"
+    legalActions = self.getLegalActions(state)
+    bestAction = None
+    maxQvalue = -sys.maxint -1
+    for a in legalActions:
+        
+        if maxQvalue <=  self.getQValue(state, a):
+            maxQvalue = self.getQValue(state, a)
+            bestAction = a
+    return bestAction
     
   def getAction(self, state):
     """
@@ -88,10 +133,17 @@ class QLearningAgent(ReinforcementAgent):
     legalActions = self.getLegalActions(state)
     action = None
     "*** YOUR CODE HERE ***"
-    print ("getAction gets called")
-    util.raiseNotDefined()
-    
-    return action
+    if len(legalActions) < 1: 
+        return None
+    else:
+        randomAction = util.flipCoin(self.epsilon) #epsilon = prob of true; 1-epsilon = prob false
+        if randomAction: 
+            action = random.choice(legalActions)
+        else:
+            action = self.getPolicy(state)
+            print "epsilon: ", self.epsilon, "coin flip: ", randomAction
+        return action
+    #util.raiseNotDefined()
   
   def update(self, state, action, nextState, reward):
     """
@@ -103,8 +155,24 @@ class QLearningAgent(ReinforcementAgent):
       it will be called on your behalf
     """
     "*** YOUR CODE HERE ***"
-    print ("update gets called")
-    util.raiseNotDefined()
+    print "update"
+    print "reward: ", reward
+    stateActions=self.getLegalActions(state)
+    
+    sa=(state,action)
+    
+    if stateActions[0]=="exit":
+        self.qValues[sa] = reward
+    else:
+    #if stateActions[0]!="exit":
+        self.freq[sa]=self.freq[sa]+1
+        self.qValues[sa]=self.qValues[sa]+self.alpha*(self.r+self.gamma*self.getValue(nextState) - self.qValues[sa])
+        #(self.freq[sa])*
+    action = self.getAction(nextState)
+    self.r=reward
+    
+    return action
+    #util.raiseNotDefined()
     
 class PacmanQAgent(QLearningAgent):
   "Exactly the same as QLearningAgent, but with different default parameters"
