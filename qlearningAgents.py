@@ -40,10 +40,11 @@ class QLearningAgent(ReinforcementAgent):
     "*** YOUR CODE HERE ***"
     self.qValues = util.Counter() #q values are initialized here.
     #self.seenqv = util.Counter() #seenqv[sa] = 1 iff qValues[sa] seen, 0 otherwise
-    
-    self.freq=util.Counter()
-    
-    self.r=0
+    self.freqSA = util.Counter()
+    self.freqS= util.Counter()
+    self.totalCount = 0.0 
+    self.r = 0.0
+    self.ac = None
         
     
   
@@ -55,21 +56,6 @@ class QLearningAgent(ReinforcementAgent):
     """
     "*** YOUR CODE HERE ***"
     sa = (state, action)
-    #print "Qvalue: state ", state,         "action      ", action
-    #print "last state:   ", self.lastState, "last action ", self.lastAction
-    #print "self.qValues before " , self.qValues[sa], " and self.seenqv ", self.seenqv[sa]
-    
-    """
-    if self.seenqv[sa] == 0: #we have never seen sa before 
-        self.seenqv[sa] = 1 #mark that we just saw it.
-        self.qValues[sa] = 0; 
-        #print "self.qValues 1st time" , self.qValues[sa]
-        return self.qValues[sa]
-    
-    elif self.seenqv[sa] != 0: 
-        #print "self.qValues more than 2 times" , self.qValues[sa]
-        return self.qValues[sa]
-    """
     return self.qValues[sa]
   
     
@@ -107,16 +93,24 @@ class QLearningAgent(ReinforcementAgent):
       you should return None.
     """
     "*** YOUR CODE HERE ***"
+
     legalActions = self.getLegalActions(state)
     bestAction = None
     maxQvalue = -sys.maxint -1
+    
     for a in legalActions:
-        
         if maxQvalue <=  self.getQValue(state, a):
             maxQvalue = self.getQValue(state, a)
             bestAction = a
-    return bestAction
     
+    bestActionsList = []
+    for a in legalActions:
+        if maxQvalue ==  self.getQValue(state, a):
+            bestActionsList.append(a)
+    
+    bestAction = random.choice(bestActionsList)            
+    return bestAction
+
   def getAction(self, state):
     """
       Compute the action to take in the current state.  With
@@ -159,10 +153,15 @@ class QLearningAgent(ReinforcementAgent):
     
     if stateActions[0]=="exit":
         self.qValues[sa] = reward
+        #self.freqSA[sa] +=1
+        #self.freqS[state] +=1
     else:
-    #if stateActions[0]!="exit":
-        self.freq[sa]=self.freq[sa]+1
-        self.qValues[sa]=self.qValues[sa]+self.alpha*(self.r+self.gamma*self.getValue(nextState) - self.qValues[sa])
+        self.freqSA[sa]=self.freqSA[sa]+1
+        self.freqS[state] +=1
+        
+        frequency = float(self.freqSA[sa])/float(self.freqS[state])
+        
+        self.qValues[sa]=self.qValues[sa]+self.alpha*frequency*(reward+self.gamma*self.getValue(nextState) - self.qValues[sa])
     action = self.getAction(nextState)
     self.r=reward
     
