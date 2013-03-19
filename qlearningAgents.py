@@ -145,7 +145,7 @@ class QLearningAgent(ReinforcementAgent):
     if stateActions[0]=="exit":
         self.qValues[sa] = reward
     else:
-        self.qValues[sa]=self.qValues[sa]+self.alpha*(reward+self.gamma*self.getValue(nextState) - self.qValues[sa])
+        self.qValues[sa]=self.getQValue(state,action)+self.alpha*(reward+self.gamma*self.getValue(nextState) - self.getQValue(state,action))
     action = self.getAction(nextState)
     
     return action
