@@ -40,14 +40,9 @@ class QLearningAgent(ReinforcementAgent):
     "*** YOUR CODE HERE ***"
     self.qValues = util.Counter() #q values are initialized here.
     #self.seenqv = util.Counter() #seenqv[sa] = 1 iff qValues[sa] seen, 0 otherwise
-    self.freqSA = util.Counter()
-    self.freqS= util.Counter()
-    self.totalCount = 0.0 
-    self.r = 0.0
-    self.ac = None
-        
+    #self.freqSA = util.Counter()
+    #self.freqS= util.Counter()
     
-  
   def getQValue(self, state, action):
     """
       Returns Q(state,action)    
@@ -156,14 +151,13 @@ class QLearningAgent(ReinforcementAgent):
         #self.freqSA[sa] +=1
         #self.freqS[state] +=1
     else:
-        self.freqSA[sa]=self.freqSA[sa]+1
-        self.freqS[state] +=1
+        #self.freqSA[sa]=self.freqSA[sa]+1
+        #self.freqS[state] +=1
         
-        frequency = float(self.freqSA[sa])/float(self.freqS[state])
+        #frequency = float(self.freqSA[sa])/float(self.freqS[state])
         
-        self.qValues[sa]=self.qValues[sa]+self.alpha*frequency*(reward+self.gamma*self.getValue(nextState) - self.qValues[sa])
+        self.qValues[sa]=self.qValues[sa]+self.alpha*(reward+self.gamma*self.getValue(nextState) - self.qValues[sa])
     action = self.getAction(nextState)
-    self.r=reward
     
     return action
     #util.raiseNotDefined()
@@ -214,6 +208,8 @@ class ApproximateQAgent(PacmanQAgent):
 
     # You might want to initialize weights here.
     "*** YOUR CODE HERE ***"
+    self.weights=util.Counter()
+    #self.featureVector=util.Counter()
     
   def getQValue(self, state, action):
     """
@@ -221,14 +217,39 @@ class ApproximateQAgent(PacmanQAgent):
       where * is the dotProduct operator
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    sa=(state,action)
+    
+    return (self.featExtractor.getFeatures(state,action)*self.weights)
+    
+    #util.raiseNotDefined()
     
   def update(self, state, action, nextState, reward):
     """
        Should update your weights based on transition  
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stateActions=self.getLegalActions(state)
+    sa=(state,action)
+    
+    if stateActions[0]=="exit":
+        self.qValues[sa] = reward
+    else:
+        
+        featureVector=self.featExtractor.getFeatures(state,action)
+        #print "featureVector: ",featureVector
+        
+        for key,value in featureVector.iteritems():
+            correction=reward+self.gamma*self.getValue(nextState)-self.qValues[sa]
+            self.weights[key]=self.weights[key]+self.alpha*correction*value
+            self.qValues[sa]=value*self.weights[key]
+        
+        
+    action = self.getAction(nextState)
+    
+    return action
+    #util.raiseNotDefined()
+    
     
   def final(self, state):
     "Called at the end of each game."
