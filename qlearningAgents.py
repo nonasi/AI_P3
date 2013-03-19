@@ -240,7 +240,7 @@ class ApproximateQAgent(PacmanQAgent):
         #print "featureVector: ",featureVector
         
         for key,value in featureVector.iteritems():
-            correction=reward+self.gamma*self.getValue(nextState)-self.qValues[sa]
+            correction=reward+self.gamma*self.getValue(nextState)-self.getQValue(state,action)
             self.weights[key]=self.weights[key]+self.alpha*correction*value
             self.qValues[sa]=value*self.weights[key]
         
