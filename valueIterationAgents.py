@@ -71,63 +71,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         for s in allStates:
             self.values[s] = vPrimes[s]
         i +=1
-     
-     
-    """
-    #nona's code
-    allStates = mdp.getStates() 
-    vPrimes = util.Counter() #  A Counter is a dict with default 0
-    
-    iteration = 0
-    while iteration < iterations:
         
-        for s in allStates: 
-            if mdp.isTerminal(s):
-                vPrimes[s] = mdp.getReward(s, None, s);
-            else: 
-                sreward = mdp.getReward(s, None, s)
-                vPrimes[s] = sreward + discount * self.utilOfBestAction(mdp, s )
-               
-        for s in allStates:
-            self.values[s] = vPrimes[s]
-            
-        iteration +=1
-        
-    """
-    
-  """Returns the value of the best action to take given that we are
-   at state s. 
-   s =  current state
-  """ 
-  def utilOfBestAction (self, mdp, s):
-    possibleActions =  mdp.getPossibleActions(s) 
-    import sys
-
-    maxUtility = -sys.maxint-1 # equivalent to "-infinity"
-    
-    
-    for action in possibleActions :
-            
-        transitionStatesAndProbs = mdp.getTransitionStatesAndProbs(s, action)
-        
-        utilityOfAction = self.getPUsumForGivenAction (mdp, transitionStatesAndProbs, s, action)
-        if utilityOfAction >= maxUtility:
-            maxUtility = utilityOfAction 
-  
-    return maxUtility
-  
-  """ transitionStatesAndProbs a list of (nextState, prob) pairs for a given state
-  returns the sum of the probabilities and utilities of each action
-  """
-  def getPUsumForGivenAction (self, mdp, transitionStatesAndProbs,s, action):
-    utilityOfAction = 0 
-    for tsAndP in transitionStatesAndProbs:
-        nextState = tsAndP[0]
-        transitionProbability = tsAndP[1]
-        utilityOfAction += (transitionProbability * self.values[nextState]) # 
-                
-    return utilityOfAction
-  
   def getValue(self, state):
     """
       Return the value of the state (computed in __init__).

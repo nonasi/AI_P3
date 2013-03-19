@@ -39,9 +39,6 @@ class QLearningAgent(ReinforcementAgent):
 
     "*** YOUR CODE HERE ***"
     self.qValues = util.Counter() #q values are initialized here.
-    #self.seenqv = util.Counter() #seenqv[sa] = 1 iff qValues[sa] seen, 0 otherwise
-    #self.freqSA = util.Counter()
-    #self.freqS= util.Counter()
     
   def getQValue(self, state, action):
     """
@@ -53,7 +50,6 @@ class QLearningAgent(ReinforcementAgent):
     sa = (state, action)
     return self.qValues[sa]
   
-    
   def getValue(self, state):
     """
       Returns max_action Q(state,action)        
@@ -64,8 +60,7 @@ class QLearningAgent(ReinforcementAgent):
       has the greatest Q-value
     """
     "*** YOUR CODE HERE ***"
-    #util.raiseNotDefined()
-    #print "getValue start "
+    
     legalActions = self.getLegalActions(state)
     if len(legalActions)<1:
         return 0.0
@@ -78,8 +73,9 @@ class QLearningAgent(ReinforcementAgent):
             if maxAction <= self.getQValue(state, curAction):
                 maxAction = self.getQValue(state, curAction)
         
-        #print "getValue end - MaxAction = ", maxAction    
         return maxAction
+    
+    #util.raiseNotDefined()
     
   def getPolicy(self, state):
     """
@@ -148,14 +144,7 @@ class QLearningAgent(ReinforcementAgent):
     
     if stateActions[0]=="exit":
         self.qValues[sa] = reward
-        #self.freqSA[sa] +=1
-        #self.freqS[state] +=1
     else:
-        #self.freqSA[sa]=self.freqSA[sa]+1
-        #self.freqS[state] +=1
-        
-        #frequency = float(self.freqSA[sa])/float(self.freqS[state])
-        
         self.qValues[sa]=self.qValues[sa]+self.alpha*(reward+self.gamma*self.getValue(nextState) - self.qValues[sa])
     action = self.getAction(nextState)
     
@@ -209,7 +198,6 @@ class ApproximateQAgent(PacmanQAgent):
     # You might want to initialize weights here.
     "*** YOUR CODE HERE ***"
     self.weights=util.Counter()
-    #self.featureVector=util.Counter()
     
   def getQValue(self, state, action):
     """
@@ -237,19 +225,16 @@ class ApproximateQAgent(PacmanQAgent):
     else:
         
         featureVector=self.featExtractor.getFeatures(state,action)
-        #print "featureVector: ",featureVector
         
         for key,value in featureVector.iteritems():
             correction=reward+self.gamma*self.getValue(nextState)-self.getQValue(state,action)
             self.weights[key]=self.weights[key]+self.alpha*correction*value
             self.qValues[sa]=value*self.weights[key]
         
-        
     action = self.getAction(nextState)
     
     return action
     #util.raiseNotDefined()
-    
     
   def final(self, state):
     "Called at the end of each game."
